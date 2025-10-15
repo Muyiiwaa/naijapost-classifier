@@ -19,8 +19,9 @@ class ModelRequest(BaseModel):
 
 
 class ModelResponse(BaseModel):
-    text: str = Field(..., description="The input text that was classified.")
-    predicted_class: str = Field(..., description="The predicted class label for the input text.", examples=["Sports", "Politics", "Entertainment", "Business"])
+    text: str = Field(..., description="The input text that was classified.",
+                      examples=["I love programming in Python it is so much fun!"])
+    predicted_class: Literal["Politics", "Sports", "Entertainment", "Lifestyle", "Technology","Relationship", "Business", "Education", "Religion", "Health"] = Field(..., description="The predicted class label for the input text.", examples=["Sports", "Politics", "Entertainment", "Business"])
     probability: float = Field(..., description="The probability of the predicted class.",
     ge=0.0, le=1.0, examples=[0.95, 0.87])
 

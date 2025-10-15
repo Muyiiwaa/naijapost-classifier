@@ -56,9 +56,14 @@ def make_prediction(model, encodings):
     return predicted_classes.cpu().numpy(), probabilities.cpu().numpy()
 
 
+def predict(texts: str):
+    model, tokenizer = load_model_and_tokenizer(model_name, num_labels)
+    encodings = preprocess_texts(texts, tokenizer=tokenizer)
+    probability, predicted_class = make_prediction(model, encodings)
+
+    return probability.item(), predicted_class.item()
+
 
 if __name__ == "__main__":
-    model, tokenizer = load_model_and_tokenizer(model_name, num_labels)
-    sample_texts = ["BurnaBoy is realy an incredible singer. You know from the quality of work he has put out over the years"]
-    encodings = preprocess_texts(sample_texts, tokenizer)
-    print(make_prediction(model, encodings))
+    sample_texts = "BurnaBoy is realy an incredible singer. You know from the quality of work he has put out over the years"
+    print(predict(texts=sample_texts))

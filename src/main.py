@@ -2,32 +2,20 @@ from fastapi import FastAPI, HTTPException,status, Depends
 from schema import HomeResponse, ModelRequest, ModelResponse, StatusResponse
 import logfire
 from logging import getLogger
+import logging
 from typing import Tuple
 from config import Settings
-from utils import (
-    get_device,load_model_and_tokenizer,
-    preprocess_texts,make_prediction)
+from utils import predict
 
 
 
 # Initialize logger
+logging.basicConfig(level="INFO", format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = getLogger(__name__)
-logfire.basic_config(level="INFO", fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
 
 # initialize settings
 settings = Settings()
-
-def get_model_and_tokenizer():
-    """Dependency to get the model and tokenizer."""
-    model_name = "distilbert-base-uncased-finetuned-sst-2-english"  # Example model
-    num_labels = 10  # Example number of labels
-    device = get_device()
-    model, tokenizer = load_model_and_tokenizer(model_name, num_labels)
-    return model, tokenizer, device
-
-
-model, tokenizer, device = get_model_and_tokenizer(model_name=settings.model_name)
-
 
 # initialize FastAPI app
 app = FastAPI(
@@ -43,11 +31,22 @@ async def home():
     logger.info("Home endpoint accessed")
     return HomeResponse(message="Welcome to Naija Text Classification API",
                         version="1.0.0",
-                        endpoints=["/predict", "/status"])
+                        endpoints=["/classify_text", "/status"])
 
 
-@app.post("/predict", response_model=ModelResponse,tags=["Prediction"],
+@app.post("/classify_text", response_model=ModelResponse,tags=["Prediction"],
 responses={200: {"description": "Successful Prediction","model": ModelResponse}})
-def predict(payload: ModelRequest) -> ModelResponse:
+def classify(payload: ModelRequest) -> ModelResponse:
     try:
-        encoding = preprocess_texts()
+        probability, predicted_class = predict(payload.text)
+        predicted_class = settings.categories[predicted_class]
+        return ModelResponse(text=payload.text,predicted_class=predicted_class,
+                             probability=round(probability, 4))
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Detail: {err}")
+    
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app="main:app", host="localhost", port=8005, reload=True)
