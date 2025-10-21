@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     num_labels: int
     categories: List[str]
 
+
     model_config = SettingsConfigDict(  
         env_file = ".env",
         env_file_encoding = "utf-8")

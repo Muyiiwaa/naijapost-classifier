@@ -1,5 +1,5 @@
 [project]
-name = "naija-text-classification"
+name = "naija_text_classification"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -12,6 +12,7 @@ dependencies = [
     "pandas>=2.3.3",
     "pydantic-settings>=2.11.0",
     "scikit-learn>=1.7.2",
+    "streamlit>=1.50.0",
     "torch>=2.8.0",
     "transformers>=4.57.0",
 ]

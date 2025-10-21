@@ -1,21 +1,16 @@
 from fastapi import FastAPI, HTTPException,status, Depends
-from schema import HomeResponse, ModelRequest, ModelResponse, StatusResponse
+from src.schema import HomeResponse, ModelRequest, ModelResponse, StatusResponse
 import logfire
 from logging import getLogger
 import logging
 from typing import Tuple
-from config import Settings
 from utils import predict
-
 
 
 # Initialize logger
 logging.basicConfig(level="INFO", format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = getLogger(__name__)
 
-
-# initialize settings
-settings = Settings()
 
 # initialize FastAPI app
 app = FastAPI(
@@ -39,9 +34,8 @@ responses={200: {"description": "Successful Prediction","model": ModelResponse}}
 def classify(payload: ModelRequest) -> ModelResponse:
     try:
         probability, predicted_class = predict(payload.text)
-        predicted_class = settings.categories[predicted_class]
         return ModelResponse(text=payload.text,predicted_class=predicted_class,
-                             probability=round(probability, 4))
+                             probability=probability)
     except Exception as err:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Detail: {err}")
@@ -49,4 +43,4 @@ def classify(payload: ModelRequest) -> ModelResponse:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app="main:app", host="localhost", port=8005, reload=True)
+    uvicorn.run(app="src.main:app", host="localhost", port=8005, reload=True)
