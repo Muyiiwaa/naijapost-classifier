@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     model_name: str 
     num_labels: int
     categories: List[str]
+    logfire_token: str
 
 
     model_config = SettingsConfigDict(  
@@ -19,3 +20,4 @@ if __name__ == "__main__":
     settings = Settings()
     print(settings.categories)
     print(settings.num_labels)
+    print(settings.logfire_token)
